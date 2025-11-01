@@ -27,51 +27,75 @@
       background: radial-gradient(1100px 760px at 85% -10%, rgba(196, 181, 253, 0.22), transparent 55%),
                   radial-gradient(900px 700px at -10% 10%, rgba(167, 139, 250, 0.10), transparent 45%), var(--bg);
       color: var(--text);
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
     a { color: inherit; text-decoration: none; }
-    .container { max-width: 1080px; margin: 0 auto; padding: 24px; }
-    header { position: sticky; top: 0; backdrop-filter: blur(8px); background: rgba(255,255,255,0.7); border-bottom: 1px solid var(--stroke); }
+    .container { max-width: 1080px; margin: 0 auto; padding: 16px clamp(16px, 3vw, 24px); }
+
+    /* Header responsive */
+    header { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(8px); background: rgba(255,255,255,0.7); border-bottom: 1px solid var(--stroke); }
     .nav { display:flex; align-items:center; justify-content:space-between; gap:16px; }
-    .brand { font-weight: 800; letter-spacing: -0.02em; }
+    .brand { font-weight: 800; letter-spacing: -0.02em; font-size: clamp(18px, 2.2vw, 22px); }
     .brand span { color: var(--accent); }
-    .nav a.btn { padding: 10px 14px; border-radius: 12px; border:1px solid var(--stroke); background: linear-gradient(180deg, #efe9ff, #dcd3fe); font-weight:700; }
+    .menu-toggle { display: inline-flex; align-items:center; justify-content:center; width: 40px; height: 40px; border-radius: 10px; border:1px solid var(--stroke); background:#f7f3ff; }
+    nav ul { list-style:none; display:flex; gap:18px; padding:0; margin:0; }
+    nav a.btn { padding: 10px 14px; border-radius: 12px; border:1px solid var(--stroke); background: linear-gradient(180deg, #efe9ff, #dcd3fe); font-weight:700; }
 
-    .hero { padding: 56px 0 28px; }
-    .hero h1 { font-size: clamp(36px, 6vw, 64px); margin: 8px 0; letter-spacing:-.02em; text-transform: lowercase; }
-    .hero p { font-size: clamp(16px, 2.4vw, 22px); color: var(--muted); margin: 10px 0 18px; }
-    .meta { display:flex; gap: 14px; flex-wrap: wrap; color: var(--text); }
-    .pill { padding: 6px 12px; border-radius: 999px; border:1px solid var(--stroke); background:#faf8ff; font-weight:600; }
+    /* Mobile menu */
+    @media (max-width: 820px) {
+      nav ul { display:none; flex-direction: column; gap:10px; padding: 12px; border:1px solid var(--stroke); border-radius: 12px; background:#ffffff; margin-top: 12px; }
+      nav ul[data-open="true"] { display:flex; }
+      .menu-toggle { display:inline-flex; }
+    }
+    @media (min-width: 821px) { .menu-toggle { display:none; } }
 
-    .cta { display:inline-flex; align-items:center; gap:10px; padding: 14px 20px; border-radius: 14px; border:1px solid var(--stroke); background: linear-gradient(180deg, #e9d5ff, #c4b5fd); color:#2d1b4e; font-weight:700; }
+    /* Hero */
+    .hero { padding: clamp(28px, 6vw, 64px) 0 clamp(12px,3vw,28px); }
+    .hero h1 { font-size: clamp(30px, 6vw, 56px); margin: 8px 0; letter-spacing:-.02em; text-transform: lowercase; }
+    .hero p { font-size: clamp(16px, 2.4vw, 20px); color: var(--muted); margin: 10px 0 18px; }
+    .meta { display:flex; gap: 10px; flex-wrap: wrap; color: var(--text); }
+    .pill { padding: 8px 12px; border-radius: 999px; border:1px solid var(--stroke); background:#faf8ff; font-weight:600; font-size: 14px; }
 
-    .section { padding: 28px 0; }
-    .cards { display:grid; grid-template-columns: 1fr; gap:16px; }
-    @media (min-width: 860px) { .cards { grid-template-columns: repeat(3, 1fr); } }
-    .card { background: var(--card); border:1px solid var(--stroke); border-radius:16px; padding:18px; }
+    .cta { display:inline-flex; align-items:center; gap:10px; padding: 12px 18px; border-radius: 14px; border:1px solid var(--stroke); background: linear-gradient(180deg, #e9d5ff, #c4b5fd); color:#2d1b4e; font-weight:700; }
+
+    /* Sections */
+    .section { padding: clamp(20px, 5vw, 36px) 0; }
+    .cards { display:grid; grid-template-columns: 1fr; gap:14px; }
+    @media (min-width: 600px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 980px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+    .card { background: var(--card); border:1px solid var(--stroke); border-radius:16px; padding:16px; }
     .card h3 { margin: 6px 0 4px; font-size: 18px; }
     .card p { margin: 0; color: var(--muted); }
 
     .info { display:grid; grid-template-columns: 1fr; gap:16px; }
     @media (min-width: 820px) { .info { grid-template-columns: 1fr 1fr; } }
-    .panel { border:1px solid var(--stroke); border-radius:16px; padding:18px; background:#fcfbff; }
-    .row { display:grid; grid-template-columns: 120px 1fr; gap:10px; padding: 6px 0; }
+    .panel { border:1px solid var(--stroke); border-radius:16px; padding:16px; background:#fcfbff; }
+    .row { display:grid; grid-template-columns: 120px 1fr; gap:10px; padding: 6px 0; align-items: start; }
+    @media (max-width:520px){ .row { grid-template-columns: 1fr; gap:4px; } }
     .k { color: var(--muted); font-size:14px; }
     .v { font-weight:700; }
 
     footer { border-top:1px solid var(--stroke); margin-top: 32px; }
-    footer .container { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:16px; padding-bottom:18px; color: var(--muted); font-size: 14px; }
+    footer .container { display:flex; flex-wrap: wrap; align-items:center; justify-content:space-between; gap:12px; padding-top:16px; padding-bottom:18px; color: var(--muted); font-size: 14px; }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   </style>
 </head>
 <body>
   <header>
     <div class="container nav">
       <div class="brand">digilis<span>nutrition</span></div>
+      <button class="menu-toggle" aria-controls="menu" aria-expanded="false" aria-label="Ouvrir le menu">
+        ☰
+      </button>
       <nav>
-        <a href="#programme">Programme</a>
-        &nbsp;&nbsp;•&nbsp;&nbsp;
-        <a href="#infos">Infos pratiques</a>
-        &nbsp;&nbsp;•&nbsp;&nbsp;
-        <a class="btn" href="#inscription">S'inscrire</a>
+        <ul id="menu" data-open="false">
+          <li><a href="#programme">Programme</a></li>
+          <li><a href="#infos">Infos pratiques</a></li>
+          <li><a class="btn" href="#inscription">S'inscrire</a></li>
+        </ul>
       </nav>
     </div>
   </header>
@@ -81,9 +105,9 @@
       <h1>Conférence — bien‑être, nutrition & digital</h1>
       <p>Une journée pour comprendre comment les outils numériques transforment la prévention, l'accompagnement et l'expérience des personnes dans le champ du bien‑être et de la nutrition.</p>
       <div class="meta">
-        <span class="pill">Date : JJ mois AAAA</span>
-        <span class="pill">Heure : HH:MM – HH:MM</span>
-        <span class="pill">Lieu : à préciser</span>
+        <span class="pill">Date : Lundi 19 janvier 2026</span>
+        <span class="pill">Heure : 18:00 – 20:00</span>
+        <span class="pill">Lieu : ILIS – UFR3S, 42 rue Ambroise‑Paré, 59120 Loos</span>
       </div>
       <div style="margin-top:16px; display:flex; gap:12px; flex-wrap: wrap;">
         <a class="cta" href="#inscription">Réserver ma place</a>
@@ -121,14 +145,14 @@
       <h2 style="margin:0 0 12px; font-size: clamp(22px,3.2vw,28px);">Infos pratiques</h2>
       <div class="info">
         <div class="panel">
-          <div class="row"><div class="k">Date</div><div class="v">JJ mois AAAA</div></div>
-          <div class="row"><div class="k">Heure</div><div class="v">HH:MM – HH:MM</div></div>
-          <div class="row"><div class="k">Lieu</div><div class="v">Adresse / Ville</div></div>
+          <div class="row"><div class="k">Date</div><div class="v">Lundi 19 janvier 2026</div></div>
+          <div class="row"><div class="k">Heure</div><div class="v">18:00 – 20:00</div></div>
+          <div class="row"><div class="k">Lieu</div><div class="v">ILIS – UFR3S, 42 rue Ambroise‑Paré, 59120 Loos</div></div>
         </div>
         <div class="panel">
           <div class="row"><div class="k">Public</div><div class="v">Professionnel·le·s, étudiants, curieux</div></div>
           <div class="row"><div class="k">Tarifs</div><div class="v">À venir</div></div>
-          <div class="row"><div class="k">Contact</div><div class="v">contact@exemple.org</div></div>
+          <div class="row"><div class="k">Contact</div><div class="v"><a href="mailto:contact@exemple.org">contact@exemple.org</a></div></div>
         </div>
       </div>
     </section>
@@ -150,6 +174,17 @@
     </div>
   </footer>
   <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+  <script>
+    // Menu mobile accessible
+    const btn = document.querySelector('.menu-toggle');
+    const menu = document.getElementById('menu');
+    btn?.addEventListener('click', () => {
+      const open = menu.getAttribute('data-open') === 'true';
+      menu.setAttribute('data-open', String(!open));
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
 
