@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>digilisnutrition — Conférence bien‑être, nutrition & digital</title>
-  <meta name="description" content="digilisnutrition : une conférence sur le bien‑être, la nutrition et le rôle du digital pour mieux prévenir, accompagner et innover." />
+  <title>digilisnutrition — Conférence bien-être, nutrition & digital</title>
+  <meta name="description" content="digilisnutrition : une conférence sur le bien-être, la nutrition et le rôle du digital pour mieux prévenir, accompagner et innover." />
   <meta property="og:title" content="digilisnutrition — Conférence" />
-  <meta property="og:description" content="Une journée pour croiser bien‑être, nutrition et solutions numériques : outils concrets, retours d'expérience et perspectives." />
+  <meta property="og:description" content="Une journée pour croiser bien-être, nutrition et solutions numériques : outils concrets, retours d'expérience et perspectives." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="cover.jpg" />
   <meta name="color-scheme" content="light dark">
@@ -31,13 +31,23 @@
       text-size-adjust: 100%;
     }
     a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; height: auto; }
+
     .container { max-width: 1080px; margin: 0 auto; padding: 16px clamp(16px, 3vw, 24px); }
 
     /* Header responsive */
     header { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(8px); background: rgba(255,255,255,0.7); border-bottom: 1px solid var(--stroke); }
     .nav { display:flex; align-items:center; justify-content:space-between; gap:16px; }
-    .brand { font-weight: 800; letter-spacing: -0.02em; font-size: clamp(18px, 2.2vw, 22px); }
+    .brand { display:flex; align-items:center; gap:10px; font-weight: 800; letter-spacing: -0.02em; font-size: clamp(18px, 2.2vw, 22px); }
     .brand span { color: var(--accent); }
+
+    /* Logos université */
+    .logos { display:flex; align-items:center; gap:10px; margin-left: 8px; }
+    .logos img { height: 28px; width: auto; display:block; border-radius: 4px; background: #fff; }
+    @media (max-width: 480px) {
+      .logos img { height: 22px; }
+    }
+
     .menu-toggle { display: inline-flex; align-items:center; justify-content:center; width: 40px; height: 40px; border-radius: 10px; border:1px solid var(--stroke); background:#f7f3ff; }
     nav ul { list-style:none; display:flex; gap:18px; padding:0; margin:0; }
     nav a.btn { padding: 10px 14px; border-radius: 12px; border:1px solid var(--stroke); background: linear-gradient(180deg, #efe9ff, #dcd3fe); font-weight:700; }
@@ -86,7 +96,14 @@
 <body>
   <header>
     <div class="container nav">
-      <div class="brand">digilis<span>nutrition</span></div>
+      <div class="brand">
+        <div>digilis<span>nutrition</span></div>
+        <div class="logos" aria-label="Logos de l'université">
+          <img src="images/univ-lille.png" alt="Université de Lille" loading="eager" decoding="async">
+          <img src="images/ufr3s.jpg" alt="UFR3S" loading="eager" decoding="async">
+        </div>
+      </div>
+
       <button class="menu-toggle" aria-controls="menu" aria-expanded="false" aria-label="Ouvrir le menu">
         ☰
       </button>
@@ -102,12 +119,12 @@
 
   <main>
     <section class="container hero">
-      <h1>Conférence — bien‑être, nutrition & digital</h1>
-      <p>Une journée pour comprendre comment les outils numériques transforment la prévention, l'accompagnement et l'expérience des personnes dans le champ du bien‑être et de la nutrition.</p>
+      <h1>Conférence — bien-être, nutrition & digital</h1>
+      <p>Une journée pour comprendre comment les outils numériques transforment la prévention, l'accompagnement et l'expérience des personnes dans le champ du bien-être et de la nutrition.</p>
       <div class="meta">
         <span class="pill">Date : Lundi 19 janvier 2026</span>
         <span class="pill">Heure : 18:00 – 20:00</span>
-        <span class="pill">Lieu : ILIS – UFR3S, 42 rue Ambroise‑Paré, 59120 Loos</span>
+        <span class="pill">Lieu : ILIS – UFR3S, 42 rue Ambroise-Paré, 59120 Loos</span>
       </div>
       <div style="margin-top:16px; display:flex; gap:12px; flex-wrap: wrap;">
         <a class="cta" href="#inscription">Réserver ma place</a>
@@ -147,7 +164,7 @@
         <div class="panel">
           <div class="row"><div class="k">Date</div><div class="v">Lundi 19 janvier 2026</div></div>
           <div class="row"><div class="k">Heure</div><div class="v">18:00 – 20:00</div></div>
-          <div class="row"><div class="k">Lieu</div><div class="v">ILIS – UFR3S, 42 rue Ambroise‑Paré, 59120 Loos</div></div>
+          <div class="row"><div class="k">Lieu</div><div class="v">ILIS – UFR3S, 42 rue Ambroise-Paré, 59120 Loos</div></div>
         </div>
         <div class="panel">
           <div class="row"><div class="k">Public</div><div class="v">Professionnel·le·s, étudiants, curieux</div></div>
@@ -159,8 +176,8 @@
 
     <section class="container section" id="inscription">
       <h2 style="margin:0 0 12px; font-size: clamp(22px,3.2vw,28px);">Inscription</h2>
-      <p style="color:var(--muted); margin:0 0 12px;">Les inscriptions ouvrent bientôt. Laissez votre e‑mail pour être prévenu·e.</p>
-      <form onsubmit="event.preventDefault(); alert('Merci ! Nous vous préviendrons à l\'ouverture.');" style="display:flex; gap:10px; flex-wrap: wrap;">
+      <p style="color:var(--muted); margin:0 0 12px;">Les inscriptions ouvrent bientôt. Laissez votre e-mail pour être prévenu·e.</p>
+      <form onsubmit="event.preventDefault(); alert('Merci ! Nous vous préviendrons à l\\'ouverture.');" style="display:flex; gap:10px; flex-wrap: wrap;">
         <input type="email" placeholder="votre@email" required style="flex:1; min-width: 220px; border-radius: 12px; border:1px solid var(--stroke); padding: 12px 14px; background:#faf8ff; color: var(--text);" />
         <button class="cta" type="submit">Me prévenir</button>
       </form>
@@ -173,7 +190,7 @@
       <div><a href="#inscription">S'inscrire</a></div>
     </div>
   </footer>
-  <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+
   <script>
     // Menu mobile accessible
     const btn = document.querySelector('.menu-toggle');
