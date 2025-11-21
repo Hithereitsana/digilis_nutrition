@@ -89,6 +89,22 @@
     footer { border-top:1px solid var(--stroke); margin-top: 32px; }
     footer .container { display:flex; flex-wrap: wrap; align-items:center; justify-content:space-between; gap:12px; padding-top:16px; padding-bottom:18px; color: var(--muted); font-size: 14px; }
 
+    /* Form select styling */
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232d1b4e' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+    select:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   </style>
@@ -176,10 +192,48 @@
 
     <section class="container section" id="inscription">
       <h2 style="margin:0 0 12px; font-size: clamp(22px,3.2vw,28px);">Inscription</h2>
-      <p style="color:var(--muted); margin:0 0 12px;">Les inscriptions ouvrent bientôt. Laissez votre e-mail pour être prévenu·e.</p>
-      <form onsubmit="event.preventDefault(); alert('Merci ! Nous vous préviendrons à l\\'ouverture.');" style="display:flex; gap:10px; flex-wrap: wrap;">
-        <input type="email" placeholder="votre@email" required style="flex:1; min-width: 220px; border-radius: 12px; border:1px solid var(--stroke); padding: 12px 14px; background:#faf8ff; color: var(--text);" />
-        <button class="cta" type="submit">Me prévenir</button>
+      <p style="color:var(--muted); margin:0 0 20px;">Remplissez le formulaire ci-dessous pour vous inscrire à l'événement.</p>
+      <form id="inscriptionForm" style="max-width: 600px; display:flex; flex-direction: column; gap:16px;">
+        <div style="display:flex; gap:12px; flex-wrap: wrap;">
+          <div style="flex:1; min-width: 200px;">
+            <label for="nom" style="display:block; margin-bottom:6px; font-weight:600; color:var(--text);">Nom *</label>
+            <input type="text" id="nom" name="nom" required style="width:100%; border-radius: 12px; border:1px solid var(--stroke); padding: 12px 14px; background:#faf8ff; color: var(--text); font-size: 16px;" />
+          </div>
+          <div style="flex:1; min-width: 200px;">
+            <label for="prenom" style="display:block; margin-bottom:6px; font-weight:600; color:var(--text);">Prénom *</label>
+            <input type="text" id="prenom" name="prenom" required style="width:100%; border-radius: 12px; border:1px solid var(--stroke); padding: 12px 14px; background:#faf8ff; color: var(--text); font-size: 16px;" />
+          </div>
+        </div>
+        <div>
+          <label for="email" style="display:block; margin-bottom:6px; font-weight:600; color:var(--text);">Email *</label>
+          <input type="email" id="email" name="email" required style="width:100%; border-radius: 12px; border:1px solid var(--stroke); padding: 12px 14px; background:#faf8ff; color: var(--text); font-size: 16px;" />
+        </div>
+        <div>
+          <label for="telephone" style="display:block; margin-bottom:6px; font-weight:600; color:var(--text);">Téléphone *</label>
+          <input type="tel" id="telephone" name="telephone" required placeholder="06 12 34 56 78" style="width:100%; border-radius: 12px; border:1px solid var(--stroke); padding: 12px 14px; background:#faf8ff; color: var(--text); font-size: 16px;" />
+        </div>
+        <div>
+          <label style="display:flex; align-items:center; gap:10px; cursor:pointer; padding:12px; border-radius: 12px; border:1px solid var(--stroke); background:#faf8ff;">
+            <input type="checkbox" id="estEtudiant" name="estEtudiant" style="width:20px; height:20px; cursor:pointer;" />
+            <span style="font-weight:600; color:var(--text);">Je suis étudiant(e)</span>
+          </label>
+        </div>
+        <div id="etudesField" style="display:none;">
+          <label for="niveauEtudes" style="display:block; margin-bottom:6px; font-weight:600; color:var(--text);">Niveau d'études *</label>
+          <select id="niveauEtudes" name="niveauEtudes" required style="width:100%; border-radius: 12px; border:1px solid var(--stroke); padding: 12px 14px; background:#faf8ff; color: var(--text); font-size: 16px;">
+            <option value="">Sélectionnez votre niveau</option>
+            <option value="L1">L1 (Licence 1ère année)</option>
+            <option value="L2">L2 (Licence 2ème année)</option>
+            <option value="L3">L3 (Licence 3ème année)</option>
+            <option value="M1">M1 (Master 1ère année)</option>
+            <option value="M2">M2 (Master 2ème année)</option>
+            <option value="Doctorat">Doctorat</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <input type="text" id="niveauEtudesAutre" name="niveauEtudesAutre" placeholder="Précisez votre niveau d'études" style="width:100%; border-radius: 12px; border:1px solid var(--stroke); padding: 12px 14px; background:#faf8ff; color: var(--text); font-size: 16px; margin-top:8px; display:none;" />
+        </div>
+        <div id="message" style="display:none; padding:12px; border-radius:12px; margin-top:8px;"></div>
+        <button class="cta" type="submit" style="align-self:flex-start; margin-top:8px;">S'inscrire</button>
       </form>
     </section>
   </main>
@@ -187,10 +241,14 @@
   <footer>
     <div class="container">
       <div>© <span id="y"></span> digilisnutrition</div>
-      <div><a href="#inscription">S'inscrire</a></div>
+      <div style="display:flex; gap:16px;">
+        <a href="#inscription">S'inscrire</a>
+        <a href="admin.html" style="color:var(--muted);">Administration</a>
+      </div>
     </div>
   </footer>
 
+  <script src="inscription.js"></script>
   <script>
     // Menu mobile accessible
     const btn = document.querySelector('.menu-toggle');
@@ -201,6 +259,20 @@
       btn.setAttribute('aria-expanded', String(!open));
     });
     document.getElementById('y').textContent = new Date().getFullYear();
+    
+    // Synchronisation automatique avec admin.html via postMessage
+    // Quand les données sont sauvegardées, on les envoie aussi à sessionStorage
+    // qui est partagé entre les onglets du même navigateur
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'inscriptions' && e.newValue) {
+        // Les données ont changé, on les met aussi dans sessionStorage pour partage
+        try {
+          sessionStorage.setItem('inscriptions_sync', e.newValue);
+        } catch(err) {
+          console.log('SessionStorage non disponible');
+        }
+      }
+    });
   </script>
 </body>
 </html>
