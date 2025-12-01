@@ -34,7 +34,6 @@
     html, body { height: 100%; }
     body {
       margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      /* léger rappel rouge/vert très subtil en fond */
       background:
         radial-gradient(900px 600px at 85% -10%, rgba(22,163,74,0.08), transparent 55%),
         radial-gradient(1000px 700px at -10% 10%, rgba(217,4,41,0.08), transparent 45%),
@@ -62,7 +61,7 @@
     nav ul { list-style:none; display:flex; gap:18px; padding:0; margin:0; }
     nav a.btn {
       padding: 10px 14px; border-radius: 12px; border:1px solid var(--stroke);
-      background: linear-gradient(180deg, #ffe6ea, #ffd0d6);
+      background: linear-gradient(180deg, #ffdee3, #ffb9c3);
       color: #5a0b14; font-weight:700;
     }
     nav a:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -116,7 +115,7 @@
     .k { color: var(--muted); font-size:14px; }
     .v { font-weight:700; }
 
-    /* Formulaire d’inscription */
+    /* --- Formulaire --- */
     form { width: 100%; }
     .form-grid { display:grid; grid-template-columns: 1fr; gap:12px; }
     @media (min-width: 760px) { .form-grid { grid-template-columns: 1fr 1fr; } }
@@ -129,10 +128,35 @@
     textarea { min-height: 96px; resize: vertical; }
     .full { grid-column: 1 / -1; }
     .hint { color: var(--muted); font-size: 12px; }
-    .status { margin-top: 10px; font-size: 14px; display: none; }
-    .status.ok { color: var(--ok); display:block; }
-    .status.err { color: var(--err); display:block; }
-    .legal { font-size: 12px; color: var(--muted); }
+
+    /* RGPD en évidence */
+    .legal-flag {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px; border: 2px solid rgba(217,4,41,0.35);
+      border-radius: 12px; background: #fff1f3;
+    }
+    .legal-flag input[type="checkbox"]{
+      transform: scale(1.2);
+      margin-top: 2px;
+    }
+    .legal-flag .legal-label{
+      font-weight: 800; color: #7a0f1c;
+    }
+    .legal-flag .required-badge{
+      display:inline-block; margin-left:6px; padding:2px 8px; font-size:12px;
+      border-radius:999px; background:#d90429; color:#fff;
+    }
+
+    /* état & feedback */
+    .status { margin-top: 8px; font-size: 14px; display: none; }
+    .status.show { display:block; }
+    .status.pending { color:#6b6285; }
+    .status.ok { color:#16a34a; }
+    .status.err { color:#dc2626; }
+
+    /* champ invalide rapide */
+    input:invalid, select:invalid, textarea:invalid { outline: none; }
+    .is-invalid { border-color: #dc2626 !important; background: #fff1f2 !important; }
 
     footer { border-top:1px solid var(--stroke); margin-top: 32px; }
     footer .container { display:flex; flex-wrap: wrap; align-items:center; justify-content:space-between; gap:12px; padding-top:16px; padding-bottom:18px; color: var(--muted); font-size: 14px; }
@@ -223,7 +247,7 @@
         <div class="panel">
           <div class="row"><div class="k">Public</div><div class="v">Professionnel·le·s, étudiants, curieux</div></div>
           <div class="row"><div class="k">Tarifs</div><div class="v">À venir</div></div>
-          <div class="row"><div class="k">Contact</div><div class="v"><a href="mailto:benikenlisa@gmail.com">benikenlisa@gmail.com</a></div></div>
+          <div class="row"><div class="k">Contact</div><div class="v"><a href="mailto:digilisnutrition@gmail.com">digilisnutrition@gmail.com</a></div></div>
         </div>
       </div>
     </section>
@@ -273,20 +297,27 @@
               <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
             </select>
           </div>
+
           <div class="field full">
             <label for="comment">Commentaires (optionnel)</label>
             <textarea id="comment" name="comment" placeholder="Précisions, besoins spécifiques…"></textarea>
           </div>
+
+          <!-- RGPD visible -->
           <div class="field full">
-            <label class="legal">
+            <label class="legal-flag">
               <input type="checkbox" id="rgpd" name="rgpd" required>
-              J’accepte que mes données soient utilisées pour la gestion de cette inscription. (RGPD)
+              <span class="legal-label">
+                J’accepte que mes données soient utilisées pour la gestion de cette inscription.
+                <span class="required-badge">Obligatoire</span>
+                <div class="hint">Vous pourrez demander la suppression de vos données à tout moment : <a href="mailto:digilisnutrition@gmail.com">digilisnutrition@gmail.com</a></div>
+              </span>
             </label>
           </div>
         </div>
 
         <div style="display:flex; gap:12px; flex-wrap: wrap; align-items:center; margin-top:10px;">
-          <button class="cta" type="submit">Valider mon inscription</button>
+          <button class="cta" type="submit" id="submitBtn">Valider mon inscription</button>
           <span id="formStatus" class="status" role="status" aria-live="polite"></span>
         </div>
       </form>
@@ -311,25 +342,53 @@
     });
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // === Formulaire -> Google Apps Script ===
+    // === URL Apps Script (ta web app) ===
     const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwahbCqE_AEWG0hk9weTwb2Z4386K6sM7GeKrXXyjI616_sxab9aKOwYlVIJBkfbDEQ/exec";
 
+    // === Soumission rapide avec feedback + lecture JSON + fallback no-cors ===
     const formEl = document.getElementById('inscriptionForm');
     const statusEl = document.getElementById('formStatus');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function showStatus(kind, text){
+      statusEl.className = `status show ${kind}`;
+      statusEl.textContent = text;
+    }
+    function setBusy(b){
+      submitBtn.disabled = b;
+      submitBtn.style.opacity = b ? 0.7 : 1;
+    }
+    function validateRequired(fields){
+      let ok = true;
+      fields.forEach(el=>{
+        el.classList.remove('is-invalid');
+        if (!el.checkValidity() || (el.type === 'checkbox' && !el.checked)) {
+          el.classList.add('is-invalid');
+          ok = false;
+        }
+      });
+      return ok;
+    }
 
     formEl?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      statusEl.className = "status";
-      statusEl.textContent = "";
 
       const data = new FormData(formEl);
-      if (data.get('website')) { return; } // honeypot
-      if (!data.get('prenom') || !data.get('nom') || !data.get('email') || !data.get('role') || !data.get('nb') || !formEl.rgpd.checked) {
-        statusEl.className = "status err";
-        statusEl.textContent = "Merci de remplir tous les champs requis.";
+      if (data.get('website')) return; // honeypot
+
+      const requiredEls = [
+        formEl.prenom, formEl.nom, formEl.email, formEl.role, formEl.nb, formEl.rgpd
+      ];
+      if (!validateRequired(requiredEls)) {
+        showStatus('err', 'Merci de remplir tous les champs requis et de cocher le RGPD.');
         return;
       }
 
+      // feedback immédiat
+      showStatus('pending', 'Envoi en cours…');
+      setBusy(true);
+
+      // payload
       const payload = {
         prenom: data.get('prenom')?.toString().trim(),
         nom: data.get('nom')?.toString().trim(),
@@ -344,21 +403,63 @@
         userAgent: navigator.userAgent
       };
 
-      try {
-        await fetch(APP_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+      // timeout court pour un ressenti rapide
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 5000); // 5s max
 
+      try {
+        // 1) tentative en CORS lisible (idéal : on peut afficher "e-mail déjà inscrit")
+        const res = await fetch(APP_SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(t);
+
+        // Si le serveur renvoie JSON lisible
+        let out = null;
+        try { out = await res.json(); } catch(_) { /* parfois ContentService n'expose pas CORS */ }
+
+        if (out) {
+          if (out.duplicate) {
+            showStatus('err', '❗ Cet e-mail est déjà inscrit.');
+            setBusy(false);
+            return;
+          }
+          if (out.ok) {
+            formEl.reset();
+            showStatus('ok', '✅ Merci ! Votre inscription a été enregistrée.');
+            setBusy(false);
+            return;
+          }
+          showStatus('err', '❌ Erreur : ' + (out.error || 'réessayez plus tard.'));
+          setBusy(false);
+          return;
+        }
+
+        // si pas de JSON lisible, on considère succès (ça a bien été posté)
         formEl.reset();
-        statusEl.className = "status ok";
-        statusEl.textContent = "✅ Merci ! Votre inscription a été enregistrée.";
+        showStatus('ok', '✅ Merci ! Votre inscription a été envoyée.');
+        setBusy(false);
+
       } catch (err) {
-        console.error(err);
-        statusEl.className = "status err";
-        statusEl.textContent = "❌ Une erreur est survenue. Réessayez plus tard.";
+        clearTimeout(t);
+        // 2) fallback : no-cors pour garantir l’envoi, retour “optimiste”
+        try {
+          await fetch(APP_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          formEl.reset();
+          showStatus('ok', '✅ Inscription envoyée.');
+        } catch (e2) {
+          showStatus('err', '❌ Impossible d’envoyer pour le moment.');
+        } finally {
+          setBusy(false);
+        }
       }
     });
   </script>
