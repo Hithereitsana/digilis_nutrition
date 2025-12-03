@@ -123,6 +123,12 @@
     input:invalid, select:invalid, textarea:invalid { outline: none; }
     .is-invalid { border-color: #dc2626 !important; background: #fff1f2 !important; }
 
+    /* assure que rien ne couvre le formulaire / bouton */
+    #inscription { position: relative; z-index: 1; }
+    #submitBtn { position: relative; z-index: 2; }
+    .radio-group.invalid { outline: 2px solid #dc2626; outline-offset: 4px; border-radius: 10px; }
+    button[disabled] { cursor: not-allowed; }
+
     footer { border-top:1px solid var(--stroke); margin-top: 32px; }
     footer .container { display:flex; flex-wrap: wrap; align-items:center; justify-content:space-between; gap:12px; padding-top:16px; padding-bottom:18px; color: var(--muted); font-size: 14px; }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
@@ -305,20 +311,33 @@
   </footer>
 
   <script>
-    // Menu mobile
+    // --------- Header / Menu mobile ----------
     const btn = document.querySelector('.menu-toggle');
     const menu = document.getElementById('menu');
+
+    function setMenu(open){
+      menu?.setAttribute('data-open', String(open));
+      btn?.setAttribute('aria-expanded', String(open));
+    }
     btn?.addEventListener('click', () => {
       const open = menu.getAttribute('data-open') === 'true';
-      menu.setAttribute('data-open', String(!open));
-      btn.setAttribute('aria-expanded', String(!open));
+      setMenu(!open);
     });
+    // Ferme le menu si on clique ailleurs
+    document.addEventListener('click', (e) => {
+      if (!menu) return;
+      const open = menu.getAttribute('data-open') === 'true';
+      if (!open) return;
+      const clickedInsideMenu = menu.contains(e.target) || btn.contains(e.target);
+      if (!clickedInsideMenu) setMenu(false);
+    });
+    // Ferme le menu au scroll
+    window.addEventListener('scroll', () => setMenu(false));
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // URL Apps Script
+    // --------- Formulaire ----------
     const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwahbCqE_AEWG0hk9weTwb2Z4386K6sM7GeKrXXyjI616_sxab9aKOwYlVIJBkfbDEQ/exec";
 
-    // Soumission + validation + feedback rapide
     const formEl = document.getElementById('inscriptionForm');
     const statusEl = document.getElementById('formStatus');
     const submitBtn = document.getElementById('submitBtn');
@@ -331,45 +350,63 @@
       submitBtn.disabled = b;
       submitBtn.style.opacity = b ? 0.7 : 1;
     }
-    function validateRequired(fields){
-      let ok = true;
-      fields.forEach(el=>{
-        el.classList.remove('is-invalid');
-        // radio group special case: el can be a NodeList
-        if (NodeList.prototype.isPrototypeOf(el)) {
-          const oneChecked = Array.from(el).some(r => r.checked);
-          if (!oneChecked) ok = false;
-        } else if (!el.checkValidity() || (el.type === 'checkbox' && !el.checked)) {
-          el.classList.add('is-invalid');
-          ok = false;
-        }
-      });
-      return ok;
+    function firstInvalidScrollIntoView(el){
+      try { el.scrollIntoView({behavior:'smooth', block:'center'}); } catch(_){}
+      try { el.focus({preventScroll:true}); } catch(_){}
+    }
+    function markRadioGroup(name, invalid){
+      const grp = formEl.querySelectorAll(`input[name="${name}"]`);
+      const box = grp.length ? grp[0].closest('.radio-group') : null;
+      if (box) box.classList.toggle('invalid', !!invalid);
+      return box;
     }
     function getRadio(name){
       const r = formEl.querySelector(`input[name="${name}"]:checked`);
       return r ? r.value : "";
     }
+    function validate() {
+      let ok = true;
+      // reset visuels
+      formEl.querySelectorAll('.is-invalid').forEach(x => x.classList.remove('is-invalid'));
+      markRadioGroup('mode', false);
+      markRadioGroup('image_rights', false);
+
+      const req = [ formEl.prenom, formEl.nom, formEl.email, formEl.role, formEl.rgpd ];
+      for (const el of req) {
+        if (!el.checkValidity() || (el.type === 'checkbox' && !el.checked)) {
+          el.classList.add('is-invalid');
+          if (ok) firstInvalidScrollIntoView(el);
+          ok = false;
+        }
+      }
+      const mode = getRadio('mode');
+      const img = getRadio('image_rights');
+      if (!mode) {
+        const box = markRadioGroup('mode', true);
+        if (ok && box) firstInvalidScrollIntoView(box);
+        ok = false;
+      }
+      if (!img) {
+        const box = markRadioGroup('image_rights', true);
+        if (ok && box) firstInvalidScrollIntoView(box);
+        ok = false;
+      }
+      if (!ok) showStatus('err', 'Merci de remplir tous les champs requis (Modalité, Droit à l’image et RGPD).');
+      return ok;
+    }
 
     formEl?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      // Empêche le menu ou un overlay de gêner le clic
+      setMenu(false);
 
-      const data = new FormData(formEl);
-      if (data.get('website')) return; // honeypot
-
-      const requiredEls = [
-        formEl.prenom, formEl.nom, formEl.email, formEl.role,
-        formEl.querySelectorAll('input[name="mode"]'),
-        formEl.querySelectorAll('input[name="image_rights"]'),
-        formEl.rgpd
-      ];
-      if (!validateRequired(requiredEls)) {
-        showStatus('err', 'Merci de remplir tous les champs requis (incluant Modalité, Droit à l’image et RGPD).');
-        return;
-      }
+      if (!validate()) return;
 
       showStatus('pending', 'Envoi en cours…');
       setBusy(true);
+
+      const data = new FormData(formEl);
+      if (data.get('website')) { setBusy(false); return; } // honeypot
 
       const payload = {
         prenom: data.get('prenom')?.toString().trim(),
@@ -386,6 +423,7 @@
         userAgent: navigator.userAgent
       };
 
+      // Timeout court : ressenti rapide
       const controller = new AbortController();
       const t = setTimeout(() => controller.abort(), 5000);
 
@@ -418,12 +456,14 @@
           return;
         }
 
+        // Pas de JSON lisible -> on assume succès
         formEl.reset();
         showStatus('ok', '✅ Merci ! Votre inscription a été envoyée.');
         setBusy(false);
 
       } catch (err) {
         clearTimeout(t);
+        // Fallback "no-cors" : garantit l’envoi
         try {
           await fetch(APP_SCRIPT_URL, {
             method: "POST",
