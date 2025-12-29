@@ -118,7 +118,7 @@
     .full{ grid-column: 1 / -1; }
     .hint{ color:var(--muted); font-size: clamp(12px,1.7vw,13px); }
 
-    /* Segmented controls (radios beaux & larges) */
+    /* Segmented controls (radios) */
     .seg{ display:grid; grid-template-columns: repeat(2,1fr); gap:12px; }
     .seg input{ position:absolute; opacity:0; pointer-events:none; }
     .seg label{
@@ -135,11 +135,25 @@
     .seg input:focus-visible + label{ outline:2px solid var(--primary); outline-offset:2px; }
     .seg.invalid{ outline:2px solid #dc2626; outline-offset:4px; border-radius:12px; padding:4px; }
 
-    /* RGPD */
-    .legal-flag{ display:flex; align-items:flex-start; gap:10px; padding:12px; border:2px solid rgba(217,4,41,.35); border-radius:12px; background:var(--primary-100); word-break:break-word; }
-    .legal-flag input[type="checkbox"]{ transform:scale(1.1); margin-top:3px; }
-    .legal-flag .legal-label{ font-weight:800; color:#7a0f1c; }
-    .legal-flag .required-badge{ display:inline-block; margin-left:6px; padding:2px 8px; font-size:12px; border-radius:999px; background:var(--primary); color:#fff; }
+    /* ====== RGPD — mobile friendly ====== */
+    .legal-flag{
+      display: grid;
+      grid-template-columns: 22px 1fr; /* checkbox | texte */
+      gap: 12px; align-items: start;
+      padding: 12px;
+      border: 2px solid rgba(217,4,41,.35);
+      border-radius: 12px;
+      background: var(--primary-100);
+    }
+    .legal-flag input[type="checkbox"]{ width:22px; height:22px; margin:2px 0 0 0; }
+    .legal-text{
+      font-weight:800; color:#7a0f1c; line-height:1.35;
+      overflow-wrap:anywhere; word-break:normal; white-space:normal;
+    }
+    .required-badge{
+      display:inline-block; margin-left:6px; padding:2px 8px; font-size:12px;
+      border-radius:999px; background:var(--primary); color:#fff;
+    }
 
     /* États */
     .status{ margin-top:10px; font-size:14px; display:none; }
@@ -315,16 +329,19 @@
               <textarea id="comment" name="comment" placeholder="Précisions, besoins spécifiques…"></textarea>
             </div>
 
-            <!-- RGPD -->
+            <!-- RGPD (corrigé mobile/desktop) -->
             <div class="field full">
-              <label class="legal-flag">
-                <input type="checkbox" id="rgpd" name="rgpd" required>
-                <span class="legal-label">
+              <div class="legal-flag">
+                <input type="checkbox" id="rgpd" name="rgpd" required aria-describedby="rgpd-help">
+                <div class="legal-text">
                   J’accepte que mes données soient utilisées pour la gestion de cette inscription.
                   <span class="required-badge">Obligatoire</span>
-                  <div class="hint">Suppression des données sur demande : <a href="mailto:digilisnutrition@gmail.com">digilisnutrition@gmail.com</a></div>
-                </span>
-              </label>
+                  <div id="rgpd-help" class="hint">
+                    Suppression des données sur demande :
+                    <a href="mailto:digilisnutrition@gmail.com">digilisnutrition@gmail.com</a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
